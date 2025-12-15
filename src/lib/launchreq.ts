@@ -110,7 +110,7 @@ async function sendEmail(to: string, subject: string, body: string) {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: 'thisistest@snyk.io',
+      user: 'hello_test@snyk.io',
       pass: 'ThisIsPassword',
     },
   });
