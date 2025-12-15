@@ -1,0 +1,12 @@
+FROM node:22.16.0 AS builder
+WORKDIR "/srv"
+
+RUN mkdir -p /srv/node_modules
+RUN mkdir -p /srv/dist
+COPY package*.json ./
+COPY .snyk ./.snyk
+COPY .snyk /.snyk
+ADD node_modules /srv/node_modules
+ADD dist /srv/dist
+
+ENTRYPOINT ["tail", "-f", "/dev/null"]

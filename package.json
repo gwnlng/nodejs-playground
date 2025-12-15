@@ -1,0 +1,27 @@
+{
+  "name": "nodejs-playground",
+  "version": "1.0.0",
+  "description": "Testing typescript and nodejs",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "npm run test",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "adm-zip": "^0.5.2",
+    "axios": "^1.7.1",
+    "ignore": "^5.3.1",
+    "nodemailer": "^7.0.10",
+    "react": "^19.0.0",
+    "react-server-dom-webpack": "^19.0.0",
+    "snyk-request-manager": "^1.8.4",
+    "tslib": "1.14.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@types/nodemailer": "^7.0.4",
+    "pkg": "^5.8.1"
+  }
+}

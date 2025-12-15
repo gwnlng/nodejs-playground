@@ -1,0 +1,5 @@
+version: 2
+customFilters:
+  filter: ".runs[].results |= map(if .properties.priorityScore >= 750 then . else empty end)"
+  pass: "[.runs[].results[] | select(.properties.priorityScore >= 750)] | length"
+  msg: "Snyk code issues found"
