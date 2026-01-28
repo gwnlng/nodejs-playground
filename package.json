@@ -15,7 +15,7 @@
     "ignore": "^5.3.1",
     "nodemailer": "^7.0.10",
     "react": "^19.0.0",
-    "react-server-dom-webpack": "^19.0.0",
+    "react-server-dom-webpack": "^19.0.4",
     "snyk-request-manager": "^1.8.4",
     "tslib": "1.14.1"
   },
