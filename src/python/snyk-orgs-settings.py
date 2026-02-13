@@ -90,3 +90,4 @@ if __name__ == '__main__':
     # parse the arguments
     cli_args = config_tool.parse_command_line_args()
     generate_orgs_data(cli_args)
+    print("Completed snyk-orgs-settings.py")
