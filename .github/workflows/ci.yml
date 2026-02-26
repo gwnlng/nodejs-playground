@@ -1,0 +1,46 @@
+name: Node.js Build
+
+on:
+  push:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Pull the code from your repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Set up the Node environment
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm' # This caches your ~/.npm directory to speed up future runs
+
+      # 3. Install dependencies strictly using the lockfile
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Run the build script defined in your package.json
+      - name: Run build
+        run: npm run build
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          # In addition to the stdout, save the results as snyk.json
+          json: true
+
+      - name: Run snyk-filter gating action
+        uses: gwnlng/snyk-filter-gate-action/snyk-filter-gate@main
+        with:
+          # The path to the snyk.json file generated in the previous step
+          snyk-json-path: snyk.json
+          # output json
+          output-json: true
