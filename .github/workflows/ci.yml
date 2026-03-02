@@ -39,10 +39,7 @@ jobs:
 
   snyk-filter-gate:
     needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run snyk-filter gating action
-        uses: gwnlng/snyk-filter-gate-action/.github/workflows/snyk-filter-gate.yml@main
-        with:
-          snyk-json-path: snyk.json   # required, default is snyk.json
-          output-json: true
+    uses: gwnlng/snyk-filter-gate-action/.github/workflows/snyk-filter-gate.yml@main
+    with:
+      snyk-json-path: snyk.json   # required, default is snyk.json
+      output-json: true
