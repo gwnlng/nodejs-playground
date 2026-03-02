@@ -33,15 +33,9 @@ jobs:
         with:
           # In addition to the stdout, save the results as snyk.json
           args: --json-file-output=snyk-results.json
-      # 6. Upload results
-      - name: Upload Snyk security result
-        uses: actions/upload-artifact@v4
-        with:
-          name: snyk-results
-          path: snyk-results.json
-      # 7. Run security gating
+      # 6. Run security gating
       - name: Run snyk-filter gating
         uses: gwnlng/snyk-filter-gate-action/.github/actions/snyk-filter-gate@main
         with:
-          snyk-json-path: snyk-results   # required, default is snyk.json
+          snyk-json-path: snyk-results.json   # required, default is snyk.json
           output-json: true
