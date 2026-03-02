@@ -41,7 +41,7 @@ jobs:
           path: snyk-results.json
       # 7. Run security gating
       - name: Run snyk-filter gating
-        uses: gwnlng/snyk-filter-gate-action/.github/workflows/snyk-filter-gate.yml@main
+        uses: gwnlng/snyk-filter-gate-action/.github/actions/snyk-filter-gate@main
         with:
           snyk-json-path: snyk-results   # required, default is snyk.json
           output-json: true
