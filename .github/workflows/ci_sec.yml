@@ -109,18 +109,26 @@ jobs:
           mkdir -p "runs/${{ github.run_id }}"
           cp ${{ env.SNYK_HTML_REPORT }} "runs/${{ github.run_id }}/index.html"
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      # - name: Setup Pages
+      #   uses: actions/configure-pages@v5
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: './runs'
+      # - name: Upload artifact
+      #   uses: actions/upload-pages-artifact@v3
+      #   with:
+      #     # Upload entire repository
+      #     path: './runs'
+
+      # - name: Deploy to GitHub Pages
+      #   id: deployment
+      #   uses: actions/deploy-pages@v4
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./runs/${{ github.run_id }}
+          destination_dir: runs/${{ github.run_id }}
 
       - name: Notify Snyk Security Check Result
         if: steps.snyk-filter-gate.outcome == 'failure'
