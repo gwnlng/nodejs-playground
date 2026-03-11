@@ -34,11 +34,11 @@ jobs:
           # In addition to the stdout, save the results as snyk.json
           args: --json-file-output=snyk-results.json
       # 6. Run security gating
-      - name: Run snyk-filter gating
-        uses: gwnlng/snyk-filter-gate-action/.github/actions/snyk-filter-gate@main
-        with:
-          snyk-json-path: snyk-results.json   # required, default is snyk.json
-          output-json: true
+      # - name: Run snyk-filter gating
+      #   uses: gwnlng/snyk-filter-gate-action/.github/actions/snyk-filter-gate@main
+      #   with:
+      #     snyk-json-path: snyk-results.json   # required, default is snyk.json
+      #     output-json: true
 
       # 7. Run security gating with redirected outputs
       - name: Run snyk-filter gating with redirected outputs
