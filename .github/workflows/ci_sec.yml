@@ -11,12 +11,12 @@ jobs:
     steps:
       # 1. Pull the code from your repo
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       # 2. Set up the Node environment
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'npm' # This caches your ~/.npm directory to speed up future runs
       # 3. Install dependencies strictly using the lockfile
       - name: Install dependencies
@@ -50,12 +50,34 @@ jobs:
           output-json: true
           json-file-output: snyk-filter-results.json
 
-      # 8. Convert snyk-filter-results to HTML
+      # 8a. Convert snyk-filter-results to HTML
       - name: Download and convert Snyk filter results to HTML
         if: steps.snyk-filter-gate.outcome == 'failure'
+        run: |
+          # Download latest snyk-to-html binary for runner OS
+          npm install -g snyk-to-html
+          snyk-to-html -i snyk-filter-results.json -o snyk-filter-results.html
+          echo "SNYK_HTML_REPORT=snyk-filter-results.html" >> $GITHUB_ENV
+
+      # 8b. still need a html report as a provenance of the gating result, even if the gate is passed (i.e. no vulnerabilities found)
+      - name: Download and convert Snyk filter results to HTML
+        if: steps.snyk-filter-gate.outcome == 'success'
         run: |
           # Download latest snyk-to-html binary for Linux
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/snyk/snyk-to-html/releases/latest | jq -r '.assets[] | select(.name | contains("linux")) | .browser_download_url' | head -n 1)
           wget -O snyk-to-html "$LATEST_RELEASE"
           chmod +x snyk-to-html
-          ./snyk-to-html -i snyk-filter-results.json -o snyk-filter-results.html
+          ./snyk-to-html -i snyk-results.json -o snyk-results.html
+          echo "SNYK_HTML_REPORT=snyk-results.html" >> $GITHUB_ENV
+
+      # 9. Upload the HTML report as an artifact
+      - name: Upload Snyk filter HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-html-report
+          path: ${{ env.SNYK_HTML_REPORT }}
+
+      - name: Notify Snyk Security Check Result
+        if: steps.snyk-filter-gate.outcome == 'failure'
+        run: |
+           echo "Please review the [Snyk report](${{ env.SNYK_HTML_REPORT }}) for details."
