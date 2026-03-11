@@ -97,9 +97,10 @@ jobs:
           # Note: A direct public link to the *file* within the artifact is not straightforward
           # without using the GitHub API and authentication. This provides a link to the artifact itself.
           ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          SNYK_REPORT_URL="https://${{ github.repository_owner }}.github.io/${{ github.repository }}/${{ github.run_id }}/index.html"
 
           # Append a Markdown link to the GITHUB_STEP_SUMMARY file
-          cat ${{ env.SNYK_HTML_REPORT }} >> $GITHUB_STEP_SUMMARY
+          echo "View the [Snyk Security HTML report]($SNYK_REPORT_URL)" >> $GITHUB_STEP_SUMMARY
           echo "[Download snyk-security-report artifact]($ARTIFACT_URL)" >> $GITHUB_STEP_SUMMARY
 
       - name: Copy Snyk HTML report to Pages run directory
