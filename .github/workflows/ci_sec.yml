@@ -97,7 +97,8 @@ jobs:
           # Note: A direct public link to the *file* within the artifact is not straightforward
           # without using the GitHub API and authentication. This provides a link to the artifact itself.
           ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          SNYK_REPORT_URL="https://${{ github.repository_owner }}.github.io/${{ github.repository }}/${{ github.run_id }}/index.html"
+          GITHUB_REPOSITORY_NAME="${GITHUB_REPOSITORY#*/}"
+          SNYK_REPORT_URL="https://${{ github.repository_owner }}.github.io/${GITHUB_REPOSITORY_NAME}/${{ github.run_id }}/index.html"
 
           # Append a Markdown link to the GITHUB_STEP_SUMMARY file
           echo "View the [Snyk Security HTML report]($SNYK_REPORT_URL)" >> $GITHUB_STEP_SUMMARY
