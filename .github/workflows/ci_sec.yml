@@ -5,8 +5,23 @@ on:
   pull_request:
     branches: [ "main" ]
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build-test:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       # 1. Pull the code from your repo
@@ -86,6 +101,24 @@ jobs:
           # Append a Markdown link to the GITHUB_STEP_SUMMARY file
           cat ${{ env.SNYK_HTML_REPORT }} >> $GITHUB_STEP_SUMMARY
           echo "[Download snyk-security-report artifact]($ARTIFACT_URL)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Copy Snyk HTML report to Pages run directory
+        run: |
+          mkdir -p "runs/${{ github.run_id }}"
+          cp ${{ env.SNYK_HTML_REPORT }} "runs/${{ github.run_id }}/index.html"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # Upload entire repository
+          path: './runs'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: Notify Snyk Security Check Result
         if: steps.snyk-filter-gate.outcome == 'failure'
