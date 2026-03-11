@@ -39,3 +39,23 @@ jobs:
         with:
           snyk-json-path: snyk-results.json   # required, default is snyk.json
           output-json: true
+
+      # 7. Run security gating with redirected outputs
+      - name: Run snyk-filter gating with redirected outputs
+        uses: gwnlng/snyk-filter-gate-action/.github/actions/snyk-filter-gate@feat/redirected-outputs
+        id: snyk-filter-gate
+        continue-on-error: true
+        with:
+          snyk-json-path: snyk-results.json   # required, default is snyk.json
+          output-json: true
+          json-file-output: snyk-filter-results.json
+
+      # 8. Convert snyk-filter-results to HTML
+      - name: Download and convert Snyk filter results to HTML
+        if: steps.snyk-filter-gate.outcome == 'failure'
+        run: |
+          # Download latest snyk-to-html binary for Linux
+          LATEST_RELEASE=$(curl -s https://api.github.com/repos/snyk/snyk-to-html/releases/latest | jq -r '.assets[] | select(.name | contains("linux")) | .browser_download_url' | head -n 1)
+          wget -O snyk-to-html "$LATEST_RELEASE"
+          chmod +x snyk-to-html
+          ./snyk-to-html -i snyk-filter-results.json -o snyk-filter-results.html
