@@ -5,23 +5,8 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
-
 jobs:
   build-test:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       # 1. Pull the code from your repo
@@ -71,9 +56,8 @@ jobs:
         run: |
           # Download latest snyk-to-html binary for runner OS
           npm install -g snyk-to-html
-          mkdir -p /tmp/snyk-results
-          snyk-to-html -i snyk-filter-results.json -o /tmp/snyk-results/snyk-filter-results.html
-          echo "SNYK_HTML_REPORT=/tmp/snyk-results/snyk-filter-results.html" >> $GITHUB_ENV
+          snyk-to-html -i snyk-filter-results.json -o snyk-filter-results.html
+          echo "SNYK_HTML_REPORT=snyk-filter-results.html" >> $GITHUB_ENV
 
       # 8b. still need a html report as a provenance of the gating result, even if the gate is passed (i.e. no vulnerabilities found)
       - name: Download and convert Snyk filter results to HTML
@@ -83,22 +67,25 @@ jobs:
           LATEST_RELEASE=$(curl -s https://api.github.com/repos/snyk/snyk-to-html/releases/latest | jq -r '.assets[] | select(.name | contains("linux")) | .browser_download_url' | head -n 1)
           wget -O snyk-to-html "$LATEST_RELEASE"
           chmod +x snyk-to-html
-          mkdir -p /tmp/snyk-results
-          ./snyk-to-html -i snyk-results.json -o /tmp/snyk-results/snyk-results.html
-          echo "SNYK_HTML_REPORT=/tmp/snyk-results/snyk-results.html" >> $GITHUB_ENV
+          ./snyk-to-html -i snyk-results.json -o snyk-results.html
+          echo "SNYK_HTML_REPORT=snyk-results.html" >> $GITHUB_ENV
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Snyk filter HTML report to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload HTML artifact
+        uses: actions/upload-artifact@v4
         with:
-          # Upload entire repository
-          path: '/tmp/snyk-results'
+          name: snyk-security-report
+          path: ${{ env.SNYK_HTML_REPORT }}
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Create Snyk Security Report in Job Summary
+        run: |
+          # Construct the URL to the artifacts tab.
+          # Note: A direct public link to the *file* within the artifact is not straightforward
+          # without using the GitHub API and authentication. This provides a link to the artifact itself.
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          # Append a Markdown link to the GITHUB_STEP_SUMMARY file
+          echo "### View Snyk Security HTML Report" >> $GITHUB_STEP_SUMMARY
+          echo "[Download snyk-security-report artifact]($ARTIFACT_URL)" >> $GITHUB_STEP_SUMMARY
 
       - name: Notify Snyk Security Check Result
         if: steps.snyk-filter-gate.outcome == 'failure'
