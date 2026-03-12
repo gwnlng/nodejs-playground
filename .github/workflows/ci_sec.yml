@@ -57,7 +57,7 @@ jobs:
 
       # 7. Run security gating with redirected outputs
       - name: Run snyk-filter gating with redirected outputs
-        uses: gwnlng/snyk-filter-gate-action/.github/actions/snyk-filter-gate@feat/redirected-outputs
+        uses: gwnlng/snyk-filter-gate-action/.github/actions/snyk-filter-gate@main
         id: snyk-filter-gate
         continue-on-error: true
         with:

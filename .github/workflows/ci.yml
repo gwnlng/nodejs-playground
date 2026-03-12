@@ -54,7 +54,7 @@ jobs:
 
   snyk-filter-gate:
     needs: snyk-security-check
-    uses: gwnlng/snyk-filter-gate-action/.github/workflows/snyk-filter-gate.yml@feat/redirected-outputs
+    uses: gwnlng/snyk-filter-gate-action/.github/workflows/snyk-filter-gate.yml@main
     with:
       snyk-json-path: snyk-results   # required, default is snyk.json
       debug: true
