@@ -28,12 +28,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      # 2. Set up the Node environment
+      # 2. Set up the build environment
       - name: Use Node.js
         uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: 'npm' # This caches your ~/.npm directory to speed up future runs
+
+      - name: Use Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+          cache: 'pip' # This caches your ~/.cache/pip directory to speed up future runs
 
       # 3. Install dependencies strictly using the lockfile
       - name: Install dependencies
