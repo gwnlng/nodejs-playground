@@ -1,0 +1,70 @@
+name: Node.js Build
+
+on:
+  push:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Pull the code from your repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Set up the Node environment
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm' # This caches your ~/.npm directory to speed up future runs
+
+      - name: Use Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      # 3. Install dependencies strictly using the lockfile
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Run the build script defined in your package.json
+      - name: Run build
+        run: npm run build
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+  snyk-security-check:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 5. Setup Snyk
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/setup@master
+
+      - name: Run Snyk to check for vulnerabilities
+        run: snyk test --all-projects --json-file-output=snyk-results.json
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Upload Snyk security result
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-results
+          path: snyk-results.json
+
+  snyk-filter-gate:
+    needs: snyk-security-check
+    uses: gwnlng/snyk-filter-gate-action/.github/workflows/snyk-filter-gate.yml@main
+    with:
+      snyk-json-path: snyk-results   # required, default is snyk.json
+      debug: true
