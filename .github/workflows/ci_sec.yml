@@ -1,0 +1,67 @@
+name: Node.js Build
+
+on:
+  push:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Pull the code from your repo
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      # 2. Set up the build environment
+      - name: Use Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm' # This caches your ~/.npm directory to speed up future runs
+
+      - name: Use Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+          cache: 'pip' # This caches your ~/.cache/pip directory to speed up future runs
+
+      # 3. Install dependencies strictly using the lockfile
+      - name: Install NodeJS dependencies
+        run: |
+          npm install -g snyk-filter
+          npm ci
+
+      # 4. Run the build script defined in your package.json
+      - name: Run build
+        run: npm run build
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 5. Setup Snyk
+      - name: Setup Snyk
+        uses: snyk/actions/setup@master
+
+      - name: Run Snyk to check for vulnerabilities
+        shell: bash
+        run: snyk test --all-projects --json-file-output=snyk-results.json
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      # 6. Run security gating with Job summary
+      - name: Run snyk-filter gating
+        uses: gwnlng/snyk-filter-gate-action/.github/actions/snyk-filter-gate@main
+        id: snyk-filter-gate
+        continue-on-error: true
+        with:
+          snyk-json-path: "snyk-results.json"
+
+      - name: Notify Snyk Security Check Result
+        if: steps.snyk-filter-gate.outcome == 'failure'
+        run: |
+           echo "Please review security vulnerabilities at Job Summary."
+           exit 1
