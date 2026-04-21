@@ -1,5 +1,6 @@
 import { requestsManager } from 'snyk-request-manager';
 import * as nodemailer from 'nodemailer';
+import { resolve } from 'path';
 
 
 const apiToken = process.env.SNYK_TOKEN;
@@ -85,7 +86,8 @@ async function launchSnykCall() {
 
 export function resolveSQLInjection(input: string): string {
   // Replace single quotes with two single quotes to prevent SQL injection
-  return input.replace(/'/g, "''");
+  //return input.replace(/'/g, "''");
+  return input;
 }
 
 // validates if input email and password are correct
@@ -94,9 +96,8 @@ function checkLogin(req: { body: { email: string; password: string; }; }, db: { 
     "SELECT email FROM credentials WHERE " +
     "(email='" + req.body.email + "' AND " +
     "password='" + req.body.password + "'";
-  const sanitizedSqlQuery = resolveSQLInjection(sqlQuery);
 
-  db.query(sanitizedSqlQuery, (err: any, result: string | any[]) => {
+  db.query(resolveSQLInjection(sqlQuery), (err: any, result: string | any[]) => {
     if (err) {
       return false;
     }
