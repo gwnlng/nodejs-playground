@@ -96,8 +96,8 @@ function checkLogin(req: { body: { email: string; password: string; }; }, db: { 
     "SELECT email FROM credentials WHERE " +
     "(email='" + req.body.email + "' AND " +
     "password='" + req.body.password + "'";
-
-  db.query(resolveSQLInjection(sqlQuery), (err: any, result: string | any[]) => {
+  const resolvedQuery = resolveSQLInjection(sqlQuery);
+  db.query(resolvedQuery, (err: any, result: string | any[]) => {
     if (err) {
       return false;
     }
