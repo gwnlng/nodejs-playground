@@ -54,7 +54,7 @@ jobs:
 
       # 6. Run security gating with Job summary
       - name: Run snyk-filter gating
-        uses: gwnlng/snyk-filter-gate-action/.github/actions/snyk-filter-gate@fix/line-break-gh-summary
+        uses: gwnlng/snyk-filter-gate-action/.github/actions/snyk-filter-gate@main
         id: snyk-filter-gate
         continue-on-error: true
         with:
