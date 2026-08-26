@@ -2,13 +2,15 @@
 version: v1.25.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  SNYK-DEBIAN12-GIT-6846203:
+  SNYK-JS-REACTSERVERDOMWEBPACK-14173285:
     - '*':
         reason: None Given
-        expires: 2024-12-21T05:37:46.178Z
+        expires: 2026-12-18T05:37:46.178Z
         created: 2024-10-15T05:37:46.181Z
 patch: {}
 exclude:
   global:
     - testme
     - node_modules
+language-settings:
+  python: '3.7'
